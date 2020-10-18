@@ -1,0 +1,87 @@
+Solution #1 - Permutations Using Built - In
+Problem Description
+We are given an array of four integers. We need to make the latest time in 24 hour format and return it. If no valid time can be made from the given strings, we need to return "".
+Solution Details:
+- We can use the built in function itertools to generate all possible combinations of the given list. 
+- Once we get the list, we can see, out of that how many satisfies the given criteria. ie hour should be less than 24 and minute should be less then 60.  So we can see what are the valid combination from the list
+- Next we need to find out the max from the list. For this, I defined a variable maxTime which holds the value of -1 in the beginning. And as and when we hit the valid values, we compare that value and the max time.
+- if the maxTime value has not changed, then there are no possible values. So return ""
+- Now next, we have to take care of the formatting "{:02d}".format(variable) is the wat to format a int into a two digit string. If you want four digit make it 0.04d and proceed.
+TC - O(1)
+- How? We have a permutation generation built-in function. Assuming that it will take O(N!) time for generating the list. But here N is constant. No matter what the input is the time is going to be O(4!) i.e. O(24) It does not vary with input. Same with the care of for loop. The TC of for loop is O(1). So O(1)+O(1) -> O(1)
+SC - O(1)
+- How? The same logic as TC is applicable here as well. No matter what the input is,  the space needed for the array to store the permutation results are same. So SC is O(1)
+
+```
+class Solution: 
+    def largestTimeFromDigits(self, arr: List[int]) -> str: 
+        arr = itertools.permutations(arr) 
+        valid = [] 
+        maxTime = -1 
+        for a in arr: 
+            hour = a[0]*10+a[1] 
+            minute = a[2]*10 +a[3] 
+            if hour <24 and minute < 60: 
+                maxTime = max(maxTime, hour*60+minute) 
+        if maxTime == -1: return "" 
+        return("{:02d}".format((int(maxTime/60)))+":"+"{:02d}".format(maxTime%60))
+```
+
+Solution #2: Permutations
+Solution Details:
+- The solution is same as above. If the interviewer asks you to solve the solution without using built-in permutation function, then generate the permutations using multiple for loops. Make sure you have a condition to eliminate duplicate values in the permutations.
+- Everything else is same as above
+TC - O(1)
+- Though we have four for loops, since the length of the arr is constant (i.e. 4) we have constant iterations and it does not vary with each input. So the Time Complexity is O(1)
+SC - O(1)
+- No matter what the input is, the space needed for the array to store the permutation results are same
+
+```
+class Solution: 
+    def largestTimeFromDigits(self, arr: List[int]) -> str: 
+        maxTime = -1
+        for i,a in enumerate(arr):
+            for j,b in enumerate(arr):
+                for k,c in enumerate(arr):
+                    for l,d in enumerate(arr):
+                        if i==j or i==k or i==l or j==k or j==l or k==l:
+                            continue
+                        if (a*10+b) <24 and (c*10+d) < 60:
+                            maxTime = max(maxTime, (a*10+b)*60+(c*10+d))
+        if maxTime == -1: return ""
+        return ("{:02d}".format(int(maxTime/60))+":"+"{:02d}".format(maxTime%60))
+```
+
+Solution #3: Permutation and Backtracking
+Solution Details:
+The third approach is a little different from the above two. In the above solution we blindly generate permutations for all the given four values. That method is not exactly a perfect approach for generating permutations. We could do it more intuitively by using swapping, recursion and backtracking. It is not the most efficient but definitely very intuitive and easy to remember. This can be useful in many other algorithm problems. You can refer to Heap's Algorithm in wikipedia for more details.
+Solution Details:
+-  We use recursion to generate the possible permutations
+- We initially start with the index 0, fix that index, swap its values in iteration and then recursively call the subarrays
+- After the recursion call we revert back to initial values of the array so that we can start with a clean state
+- Ideas - divide and conquer, swapping and backtracking
+
+```
+class Solution: 
+    def largestTimeFromDigits(self, arr: List[int]) -> str: 
+        maxTime = -1
+        
+        def calculate(temp):
+            nonlocal maxTime
+            [a,b,c,d] = temp
+            if (a*10+b) < 24 and (c*10+d) < 60:
+                maxTime = max(maxTime, (a*10+b)*60+(c*10+d))
+        
+        def permute(arr,start):
+            if len(arr)==start:
+                calculate(arr)
+                return
+            for i in range(start, len(arr)):
+                arr[i],arr[start] = arr[start],arr[i]
+                permute(arr,start+1)
+                arr[i],arr[start] = arr[start],arr[i]
+        
+        permute(arr,0)
+        if maxTime ==-1: return ""
+        return("{:02d}".format(int(maxTime/60))+":"+"{:02d}".format((maxTime%60)))
+```
